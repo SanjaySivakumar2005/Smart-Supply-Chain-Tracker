@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Supply Chain Tracker</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .glow {
+            text-shadow: 0 0 10px rgba(34, 197, 94, 0.8);
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .alert-flash {
+            animation: flash 1s infinite;
+        }
+        @keyframes flash {
+            0%, 100% { background-color: #ef4444; }
+            50% { background-color: #dc2626; }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <header class="bg-gradient-to-r from-blue-600 to-purple-700 text-white py-6">
+        <div class="container mx-auto px-4">
+            <h1 class="text-4xl font-bold text-center mb-2">Smart Supply Chain Tracker</h1>
+            <p class="text-lg text-center">Real-Time Monitoring with AI-Powered Anomaly Detection</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- Shipment Overview -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4"><i class="fas fa-truck mr-2"></i>Active Shipments</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="shipments-list">
+                <!-- Shipments will be dynamically generated here -->
+            </div>
+        </section>
+
+        <!-- Anomaly Alerts -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4 text-red-600"><i class="fas fa-exclamation-triangle mr-2"></i>Real-Time Anomaly Alerts</h2>
+            <div id="alerts-container" class="space-y-4">
+                <p class="text-gray-600">No anomalies detected currently.</p>
+            </div>
+        </section>
+
+        <!-- Dashboard Charts -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4"><i class="fas fa-chart-line mr-2"></i>Analytics Dashboard</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <canvas id="shipmentStatusChart"></canvas>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <canvas id="anomalyTrendsChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Inventory Monitoring -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4"><i class="fas fa-warehouse mr-2"></i>Inventory Levels</h2>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <div id="inventory-table" class="overflow-x-auto">
+                    <!-- Inventory table will be generated here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Notifications Section -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4"><i class="fas fa-bell mr-2"></i>Recent Notifications</h2>
+            <div id="notifications" class="space-y-4">
+                <!-- Notifications will be added here -->
+            </div>
+        </section>
+
+        <!-- Simulate Sensor Input (For Demo) -->
+        <section class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-2xl font-semibold mb-4"><i class="fas fa-sensor mr-2"></i>Simulate Sensor Data (Demo)</h2>
+            <form id="sensor-form" class="space-y-4">
+                <div>
+                    <label for="shipment-id" class="block text-sm font-medium text-gray-700">Shipment ID</label>
+                    <input type="text" id="shipment-id" name="shipment-id" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="temperature" class="block text-sm font-medium text-gray-700">Temperature (°C)</label>
+                        <input type="number" id="temperature" name="temperature" step="0.1" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="humidity" class="block text-sm font-medium text-gray-700">Humidity (%)</label>
+                        <input type="number" id="humidity" name="humidity" step="0.1" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="shock" class="block text-sm font-medium text-gray-700">Shock Level</label>
+                        <input type="number" id="shock" name="shock" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Update Sensor Data</button>
+            </form>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2025 Smart Supply Chain Tracker. All rights reserved. Powered by AI and IoT simulations.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Mock data structures
+        let shipments = [
+            { id: 'SHIP001', destination: 'New York', status: 'In Transit', temperature: 25.5, humidity: 60.0, shock: 2.1, lastUpdate: new Date() },
+            { id: 'SHIP002', destination: 'Los Angeles', status: 'Delayed', temperature: 30.2, humidity: 45.0, shock: 5.5, lastUpdate: new Date() },
+            { id: 'SHIP003', destination: 'Chicago', status: 'Delivered', temperature: 22.0, humidity: 55.0, shock: 1.0, lastUpdate: new Date() },
+            { id: 'SHIP004', destination:'Seattle', status: 'Shipped', temperature: 20.5, humidity: 70.0, shock: 2.8, lastUpdate: new Date() },
+        ];
+
+        let alerts = [];
+        let notifications = [];
+        let inventory = [
+            { product: 'Electronics', stock: 150, threshold: 50 },
+            { product: 'Perishables', stock: 80, threshold: 30 },
+            { product: 'Textiles', stock: 200, threshold: 100 },
+        ];
+
+        // Anomaly detection thresholds
+        const tempThreshold = { min: 0, max: 25 };
+        const humidityThreshold = { min: 40, max: 65 };
+        const shockThreshold = { max: 3.0 };
+
+        // Real-time updates simulation
+        function simulateRealTimeUpdates() {
+            setInterval(() => {
+                shipments.forEach(shipment => {
+                    // Simulate sensor data changes
+                    shipment.temperature += (Math.random() - 0.5) * 2;
+                    shipment.humidity += (Math.random() - 0.5) * 5;
+                    shipment.shock += (Math.random() - 0.5);
+                    shipment.lastUpdate = new Date();
+
+                    // Anomaly detection
+                    if (shipment.temperature < tempThreshold.min || shipment.temperature > tempThreshold.max ||
+                        shipment.humidity < humidityThreshold.min || shipment.humidity > humidityThreshold.max ||
+                        shipment.shock > shockThreshold.max) {
+                        if (!alerts.find(alert => alert.shipmentId === shipment.id)) {
+                            alerts.push({
+                                shipmentId: shipment.id,
+                                issue: shipment.temperature < tempThreshold.min ? 'Low Temperature' :
+                                       shipment.temperature > tempThreshold.max ? 'High Temperature' :
+                                       shipment.humidity < humidityThreshold.min ? 'Low Humidity' :
+                                       shipment.humidity > humidityThreshold.max ? 'High Humidity' : 'Shock Detected',
+                                timestamp: new Date()
+                            });
+                            notifications.unshift({
+                                message: `ALERT: Anomaly detected for ${shipment.id} - ${alerts[alerts.length - 1].issue}`,
+                                time: new Date().toLocaleString()
+                            });
+                        }
+                    }
+                });
+
+                // Update inventory based on shipments
+                shipments.forEach(shipment => {
+                    if (shipment.status === 'Delivered') {
+                        let item = inventory.find(item => Math.random() > 0.5); // Random item for demo
+                        if (item) {
+                            item.stock -= Math.floor(Math.random() * 10);
+                            if (item.stock < item.threshold && !notifications.find(n => n.message.includes(item.product + ' low stock'))) {
+                                notifications.unshift({
+                                    message: `NOTIFICATION: ${item.product} stock low (${item.stock} units)`,
+                                    time: new Date().toLocaleString()
+                                });
+                            }
+                        }
+                    }
+                });
+
+                updateUI();
+            }, 5000); // Update every 5 seconds
+        }
+
+        function updateUI() {
+            updateShipmentsList();
+            updateAlerts();
+            updateNotifications();
+            updateInventory();
+            updateCharts();
+        }
+
+        function updateShipmentsList() {
+            const list = document.getElementById('shipments-list');
+            list.innerHTML = shipments.map(shipment => `
+                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 ${shipment.status === 'Delayed' ? 'border-l-4 border-red-500' : shipment.status === 'Delivered' ? 'border-l-4 border-green-500' : 'border-l-4 border-blue-500'}">
+                    <h3 class="text-lg font-semibold mb-2">Shipment ${shipment.id}</h3>
+                    <p class="text-gray-600 mb-2"><strong>Destination:</strong> ${shipment.destination}</p>
+                    <p class="text-gray-600 mb-2"><strong>Status:</strong> <span class="${shipment.status === 'Delivered' ? 'text-green-600' : shipment.status === 'Delayed' ? 'text-red-600' : 'text-blue-600'}">${shipment.status}</span></p>
+                    <p class="text-sm text-gray-500">Temp: ${shipment.temperature.toFixed(1)}°C | Humidity: ${shipment.humidity.toFixed(1)}% | Shock: ${shipment.shock.toFixed(1)} | Last Update: ${shipment.lastUpdate.toLocaleTimeString()}</p>
+                    <div class="mt-4 h-2 bg-gray-200 rounded-full">
+                        <div class="h-full bg-gradient-to-r from-green-400 to-blue-500 rounded-full" style="width: ${Math.min(100, (Date.now() - shipment.lastUpdate.getTime()) / 1000 / 60 * 10)}%"></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateAlerts() {
+            const container = document.getElementById('alerts-container');
+            if (alerts.length === 0) {
+                container.innerHTML = '<p class="text-gray-600">No anomalies detected currently.</p>';
+            } else {
+                container.innerHTML = alerts.map(alert => `
+                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-r-lg alert-flash">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-exclamation-circle"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm"><strong>Anomaly in ${alert.shipmentId}:</strong> ${alert.issue}</p>
+                                <p class="text-sm">Detected at ${alert.timestamp.toLocaleString()}</p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function updateNotifications() {
+            const container = document.getElementById('notifications');
+            container.innerHTML = notifications.slice(0, 5).map(notification => `
+                <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded-r-lg">
+                    <p class="text-sm">${notification.message}</p>
+                    <p class="text-xs text-gray-500">${notification.time}</p>
+                </div>
+            `).join('');
+        }
+
+        function updateInventory() {
+            const table = document.getElementById('inventory-table');
+            table.innerHTML = `
+                <table class="min-w-full table-auto">
+                    <thead>
+                        <tr>
+                            <th class="px-4 py-2 text-left">Product</th>
+                            <th class="px-4 py-2 text-left">Stock</th>
+                            <th class="px-4 py-2 text-left">Threshold</th>
+                            <th class="px-4 py-2 text-left">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${inventory.map(item => `
+                            <tr class="${item.stock < item.threshold ? 'bg-yellow-50' : ''}">
+                                <td class="border px-4 py-2">${item.product}</td>
+                                <td class="border px-4 py-2">${item.stock}</td>
+                                <td class="border px-4 py-2">${item.threshold}</td>
+                                <td class="border px-4 py-2">
+                                    ${item.stock < item.threshold ? '<span class="text-yellow-600">Low Stock</span>' : '<span class="text-green-600">OK</span>'}
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function updateCharts() {
+            // Shipment Status Chart
+            const statusCounts = shipments.reduce((acc, shipment) => {
+                acc[shipment.status] = (acc[shipment.status] || 0) + 1;
+                return acc;
+            }, {});
+
+            const statusChartCtx = document.getElementById('shipmentStatusChart').getContext('2d');
+            if (window.shipmentChart) window.shipmentChart.destroy();
+            window.shipmentChart = new Chart(statusChartCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(statusCounts),
+                    datasets: [{
+                        data: Object.values(statusCounts),
+                        backgroundColor: ['#3b82f6', '#f59e0b', '#10b981', '#ef4444']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    title: { display: true, text: 'Shipment Status Distribution' }
+                }
+            });
+
+            // Anomaly Trends Chart (mock data)
+            const anomalyChartCtx = document.getElementById('anomalyTrendsChart').getContext('2d');
+            if (window.anomalyChart) window.anomalyChart.destroy();
+            window.anomalyChart = new Chart(anomalyChartCtx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+                    datasets: [{
+                        label: 'Anomalies',
+                        data: Array.from({length: 24}, () => Math.floor(Math.random() * 10)),
+                        borderColor: '#ef4444',
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    title: { display: true, text: 'Anomaly Trends (Last 24 Hours)' }
+                }
+            });
+        }
+
+        // Handle sensor form submission
+        document.getElementById('sensor-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const shipmentId = formData.get('shipment-id');
+            const temperature = parseFloat(formData.get('temperature'));
+            const humidity = parseFloat(formData.get('humidity'));
+            const shock = parseFloat(formData.get('shock'));
+
+            const shipment = shipments.find(s => s.id === shipmentId);
+            if (shipment) {
+                shipment.temperature = temperature;
+                shipment.humidity = humidity;
+                shipment.shock = shock;
+                shipment.lastUpdate = new Date();
+                updateUI();
+
+                // Show success notification
+                notifications.unshift({
+                    message: `Sensor data updated for ${shipmentId}`,
+                    time: new Date().toLocaleString()
+                });
+            } else {
+                alert('Shipment ID not found!');
+            }
+
+            // Clear form
+            e.target.reset();
+        });
+
+        // Initialize the application
+        updateUI();
+        simulateRealTimeUpdates();
+    </script>
+</body>
+</html>
+</content>
+</create_file>
